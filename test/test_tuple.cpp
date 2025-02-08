@@ -2,49 +2,43 @@
 #include <string>
 #include <tuple>
 
-std::tuple<int, double, std::string> getValues() {
-    return std::make_tuple(10, 3.14, "Hello, World!");
+class TupleTest : public ::testing::Test {
+  protected:
+    std::tuple<int, std::string, double> tuple;
+
+    void SetUp() override { tuple = std::make_tuple(42, "Hello", 3.14); }
+};
+
+TEST_F(TupleTest, GetValues) {
+    EXPECT_EQ(std::get<0>(tuple), 42);
+    EXPECT_EQ(std::get<1>(tuple), "Hello");
+    EXPECT_DOUBLE_EQ(std::get<2>(tuple), 3.14);
 }
 
-TEST(TestTuples, test_getValues) {
-    auto t = getValues();
-    EXPECT_EQ(std::get<0>(t), 10);
-    EXPECT_EQ(std::get<1>(t), 3.14);
-    EXPECT_EQ(std::get<2>(t), "Hello, World!");
+TEST_F(TupleTest, SetValues) {
+    std::get<0>(tuple) = 100;
+    std::get<1>(tuple) = "World";
+    std::get<2>(tuple) = 2.71;
+
+    EXPECT_EQ(std::get<0>(tuple), 100);
+    EXPECT_EQ(std::get<1>(tuple), "World");
+    EXPECT_DOUBLE_EQ(std::get<2>(tuple), 2.71);
 }
 
-TEST(TestTuples, test_bind) {
-
-    std::tuple<int, double, std::string> t(10, 3.14, "Hello, World!");
-
-    auto [a, b, c] = t;
-    EXPECT_EQ(a, 10);
-    EXPECT_EQ(b, 3.14);
-    EXPECT_EQ(c, "Hello, World!");
+TEST_F(TupleTest, TupleSize) {
+    EXPECT_EQ(std::tuple_size<decltype(tuple)>::value, 3);
 }
 
-TEST(TestTuples, test_get) {
-    auto t = getValues();
-    EXPECT_EQ(std::get<0>(t), 10);
-    EXPECT_EQ(std::get<1>(t), 3.14);
-    EXPECT_EQ(std::get<2>(t), "Hello, World!");
+TEST_F(TupleTest, TupleElement) {
+    EXPECT_TRUE((std::is_same<std::tuple_element<0, decltype(tuple)>::type,
+                              int>::value));
+    EXPECT_TRUE((std::is_same<std::tuple_element<1, decltype(tuple)>::type,
+                              std::string>::value));
+    EXPECT_TRUE((std::is_same<std::tuple_element<2, decltype(tuple)>::type,
+                              double>::value));
 }
 
-void print(int a, double b, const std::string &c) {
-    std::cout << "a: " << a << ", b: " << b << ", c: " << c << std::endl;
-}
-
-TEST(TestTuples, test_apply) {
-    auto t = getValues();
-    std::apply(print, t);
-
-    std::tuple<int, double, std::string> tuple(1, 2.0, "hello");
-    std::apply(print, tuple);
-}
 int main(int argc, char **argv) {
-    // 初始化 Google Test
     ::testing::InitGoogleTest(&argc, argv);
-
-    // 运行所有测试用例
     return RUN_ALL_TESTS();
 }
