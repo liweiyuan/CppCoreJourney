@@ -11,6 +11,11 @@ std::optional<int> getValue(bool condition) {
     return std::nullopt;
 }
 
+TEST(OptionalTests, test_optional_exception) {
+    std::optional<int> opt;
+    EXPECT_THROW(opt.value(), std::bad_optional_access);
+}
+
 TEST(OptionalTests, test_optional_value) {
     auto value = getValue(true);
     EXPECT_TRUE(value.has_value());

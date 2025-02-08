@@ -12,6 +12,20 @@ TEST(TestConfigs, test_config) {
     EXPECT_EQ(config.get<std::string>("hostname"), "localhost");
     EXPECT_EQ(config.get<std::string>("database_name"), "test_db");
 }
+
+TEST(TestConfigs, test_config_boundary) {
+    Config config;
+    config.set("empty_string", std::string(""));
+    EXPECT_EQ(config.get<std::string>("empty_string"), "");
+
+    config.set("special_chars", std::string("!@#$%^&*()"));
+    EXPECT_EQ(config.get<std::string>("special_chars"), "!@#$%^&*()");
+}
+
+TEST(TestConfigs, test_config_exception) {
+    Config config;
+    EXPECT_THROW(config.get<int>("non_existent_key"), std::out_of_range);
+}
 TEST(TestConfigs, SetAndGet) {
     Config config;
 
