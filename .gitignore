@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+.cache/
+.vscode/
+.zed/
+
+
+## Cmake build directory
+build/
