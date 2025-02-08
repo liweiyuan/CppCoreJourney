@@ -3,6 +3,7 @@
 
 //线程安全的LRU缓存实现
 #include <list>
+#include <shared_mutex>
 #include <unordered_map>
 #include <mutex>
 #include <optional>
@@ -20,8 +21,8 @@ public:
     // 获取缓存项的值
     // @param key: 要查找的键
     // @return: 如果找到对应的值，则返回std::optional<Value>，否则返回std::nullopt
-    std::optional<Value> get(const Key& key) {
-        std::lock_guard<std::mutex> lock(mutex_); // 加锁，保证线程安全
+    std::optional<Value> get(const Key& key){
+        std::shared_lock<std::shared_mutex> lock(mutex_); // 加共享锁(读锁)，保证线程安全
         auto it = cache_map_.find(key); // 在哈希表中查找键
         if (it == cache_map_.end()) {
             return std::nullopt;// 如果未找到，返回空值
@@ -35,7 +36,7 @@ public:
     // @param key: 要插入或更新的键
     // @param value: 要插入或更新的值
     void put(const Key& key, const Value& value) {
-        std::lock_guard<std::mutex> lock(mutex_);  // 加锁，保证线程安全
+        std::lock_guard<std::shared_mutex> lock(mutex_);  // 加锁，保证线程安全
         auto it = cache_map_.find(key);  // 在哈希表中查找键
         if (it != cache_map_.end()) {
             // 如果键已存在，更新其值并将其移动到链表的最前面
@@ -58,7 +59,7 @@ public:
     // @param key: 要移除的键
     // @return: 如果找到并移除成功，返回true，否则返回false
     bool remove(const Key& key) {
-        std::lock_guard<std::mutex> lock(mutex_);  // 加锁，保证线程安全
+        std::lock_guard<std::shared_mutex> lock(mutex_);  // 加锁，保证线程安全
         auto it = cache_map_.find(key);  // 在哈希表中查找键
         if (it == cache_map_.end()) {
             return false;  // 如果未找到，返回false
@@ -73,6 +74,6 @@ private:
     size_t capacity_;
     std::list<std::pair<Key, Value>> cache_list_;
     std::unordered_map<Key, typename std::list<std::pair<Key, Value>>::iterator> cache_map_;
-    std::mutex mutex_;
+    std::shared_mutex mutex_;
 };
 #endif

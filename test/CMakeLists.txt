@@ -44,6 +44,9 @@ target_link_libraries(queueTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(chronoTests test_chrono.cpp)
 target_link_libraries(chronoTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(LRUTests test_cache.cpp)
+target_link_libraries(LRUTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)
@@ -60,4 +63,4 @@ add_test(NAME OptionalTests COMMAND optionalTests)
 add_test(NAME PromiseFutureTests COMMAND promiseFutureTests)
 add_test(NAME QueueTests COMMAND queueTests)
 add_test(NAME TestsChrono COMMAND chronoTests)
-
+add_test(NAME LRUTests COMMAND SafeLRUCacheTests)
