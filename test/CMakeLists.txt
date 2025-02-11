@@ -47,6 +47,9 @@ target_link_libraries(chronoTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(LRUTests test_cache.cpp)
 target_link_libraries(LRUTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(SkipListTests test_skiplist.cpp)
+target_link_libraries(SkipListTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)
