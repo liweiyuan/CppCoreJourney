@@ -38,3 +38,6 @@
 
 ## Cmake build directory
 build/
+
+## code dump
+core.*

@@ -2,87 +2,82 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <limits> // Required for numeric_limits
 #include <vector>
 
 template <typename T> class SkipList {
   private:
     struct Node {
         T key;
-        Node *next;                // 后继指针
-        Node *down;                // 下降指针
-        std::vector<Node *> nexts; // 指向不同层级的下一个节点
+        std::vector<Node *> next;
 
-        Node(const T &data, int level)
-            : key(data), next(nullptr), down(nullptr), nexts(level, nullptr) {}
+        Node(const T &key, int level) : key(key), next(level, nullptr) {}
     };
 
     Node *head;
-    int level; // 层数
-    double p;  // 概率因子
+    int level;
+    double p;
 
     int randomLevel() {
         int l = 1;
-        while (rand() / double(RAND_MAX) < p && l < level) {
+        while (static_cast<double>(rand()) / RAND_MAX < p && l < level) {
             l++;
         }
         return l;
     }
 
   public:
-    SkipList(int level = 16, double p = 0.5) : level(level), p(p) {
-        head = new Node(T(), level); // 创建头节点，键值为空
+    SkipList(int maxLevel = 16, double probability = 0.5)
+        : level(maxLevel), p(probability) {
+        head = new Node(std::numeric_limits<T>::min(),
+                        level); // 使用最小可能值作为头节点键值
     }
 
     ~SkipList() {
-        // 释放内存
         Node *current = head;
         while (current != nullptr) {
-            Node *next = current->nexts[0];
+            Node *next = current->next[0];
             delete current;
             current = next;
         }
     }
 
-    // 插入键值对
-    void insert(T key) {
-        std::vector<Node *> update(level); // 用于存储每层需要更新的节点
+    void insert(const T &key) {
+        std::vector<Node *> update(level);
         Node *current = head;
 
-        // 找到每层需要更新的节点
         for (int i = level - 1; i >= 0; i--) {
-            while (current->nexts[i] != nullptr &&
-                   current->nexts[i]->key < key) {
-                current = current->nexts[i];
+            while (current->next[i] != nullptr && current->next[i]->key < key) {
+                current = current->next[i];
             }
             update[i] = current;
         }
 
-        // 生成随机层数
         int l = randomLevel();
 
-        // 创建新节点
+        if (l > level) { // 正确处理层数增加的情况
+            for (int i = level; i < l; ++i) {
+                update[i] = head;
+            }
+            level = l;
+        }
+
         Node *newNode = new Node(key, l);
 
-        // 更新每层的指针
         for (int i = 0; i < l; i++) {
-            newNode->nexts[i] = update[i]->nexts[i];
-            update[i]->nexts[i] = newNode;
-            if (i > 0) {
-                newNode->nexts[i - 1]->down = newNode;
-            }
+            newNode->next[i] = update[i]->next[i];
+            update[i]->next[i] = newNode;
         }
     }
 
-    // 查找键
-    bool search(T key) {
+    bool search(const T &key) const { // const correctness
         Node *current = head;
 
         for (int i = level - 1; i >= 0; i--) {
-            while (current->nexts[i] != nullptr &&
-                   current->nexts[i]->key < key) {
-                current = current->nexts[i];
+            while (current->next[i] != nullptr && current->next[i]->key < key) {
+                current = current->next[i];
             }
-            if (current->nexts[i] != nullptr && current->nexts[i]->key == key) {
+            if (current->next[i] != nullptr && current->next[i]->key == key) {
                 return true;
             }
         }
@@ -90,14 +85,13 @@ template <typename T> class SkipList {
         return false;
     }
 
-    // 打印 skiplist
-    void print() {
+    void print() const { // const correctness
         for (int i = level - 1; i >= 0; i--) {
             std::cout << "Level " << i << ": ";
-            Node *current = head->nexts[i];
+            Node *current = head->next[i];
             while (current != nullptr) {
                 std::cout << current->key << " ";
-                current = current->nexts[i];
+                current = current->next[i];
             }
             std::cout << std::endl;
         }
