@@ -1,0 +1,52 @@
+name: C++17 Clang Build with Google Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤 1：检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 步骤 2：安装必要的依赖
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang-14 g++-14 libgtest-dev
+          # 创建 Google Test 库的构建目录并编译安装
+          cd /usr/src/gtest
+          sudo cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14
+          sudo cmake --build build
+          sudo cp build/libgtest*.a /usr/lib
+
+      # 步骤 3：创建构建目录
+      - name: Create build directory
+        run: mkdir build
+
+      # 步骤 4：配置 CMake
+      - name: Configure CMake
+        working-directory: build
+        run: |
+          cmake -GNinja \
+                -DCMAKE_CXX_COMPILER=clang++-14 \
+                -DCMAKE_CXX_STANDARD=17 \
+                ..
+
+      # 步骤 5：编译项目
+      - name: Build project
+        working-directory: build
+        run: ninja
+
+      # 步骤 6：运行单元测试
+      - name: Run tests
+        working-directory: build
+        run: ctest
