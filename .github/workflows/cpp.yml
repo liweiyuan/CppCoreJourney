@@ -53,3 +53,31 @@ jobs:
       - name: Run tests SkipListTests
         working-directory: build
         run: ./test/SkipListTests
+
+      - name: Run tests callbackTests
+        working-directory: build
+        run: ./test/callbackTests
+
+      - name: Run tests queueTests
+        working-directory: build
+        run: ./test/queueTests
+
+      - name: Run tests runTests
+        working-directory: build
+        run: ./test/runTests
+
+      - name: Run tests tupleTests
+        working-directory: build
+        run: ./test/tupleTests
+
+      - name: Run tests configTests
+        working-directory: build
+        run: ./test/configTests
+
+      - name: Run tests optionalTests
+        working-directory: build
+        run: ./test/optionalTests
+
+      - name: Run tests alloctorTests
+        working-directory: build
+        run: ./test/alloctorTests
