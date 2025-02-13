@@ -22,11 +22,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build clang-14 g++-14 libgtest-dev
-          # 创建 Google Test 库的构建目录并编译安装
-          cd /usr/src/gtest
-          sudo cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14
-          sudo cmake --build build
-          sudo cp build/libgtest*.a /usr/lib
+          # 安装 Google Test
+          sudo apt-get install -y libgtest-dev
 
       # 步骤 3：创建构建目录
       - name: Create build directory
