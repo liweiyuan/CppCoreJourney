@@ -50,6 +50,9 @@ target_link_libraries(LRUTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(SkipListTests test_skiplist.cpp)
 target_link_libraries(SkipListTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(ConvertStringTests test_convert_string.cpp)
+target_link_libraries(ConvertStringTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)

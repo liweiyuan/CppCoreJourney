@@ -81,3 +81,7 @@ jobs:
       - name: Run tests alloctorTests
         working-directory: build
         run: ./tests/alloctorTests
+
+      - name: Run tests CovertStringTests
+        working-directory: build
+        run: ./tests/CovertStringTests
