@@ -2,17 +2,29 @@
 #define __SAFE_CACHE_HPP__
 
 // 线程安全的LRU缓存实现
+#include <array>
 #include <list>
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
 #include <stdexcept>
 #include <unordered_map>
+
 // SafeLRUCache 是一个线程安全的LRU（最近最少使用）缓存实现。
 // 它使用了一个双向链表（std::list）来维护缓存项的访问顺序，
 // 并使用一个哈希表（std::unordered_map）来快速查找缓存项。
 // 通过锁（std::shared_mutex）来保证线程安全。
 template <typename Key, typename Value> class SafeLRUCache {
+  private:
+    // 添加分片锁来减少锁竞争
+    static constexpr size_t SHARD_COUNT = 16;
+    std::array<std::shared_mutex, SHARD_COUNT> shard_mutexes_;
+
+    // 获取分片索引
+    size_t get_shard(const Key &key) const {
+        return std::hash<Key>{}(key) % SHARD_COUNT;
+    }
+
   public:
     // 构造函数，初始化缓存容量
     // @param capacity: 缓存的最大容量
@@ -28,9 +40,9 @@ template <typename Key, typename Value> class SafeLRUCache {
     // @return:
     // 如果找到对应的值，则返回std::optional<Value>，否则返回std::nullopt
     std::optional<Value> get(const Key &key) {
-        // 乐观锁
-        std::shared_lock<std::shared_mutex> read_ock(
-            mutex_); // 加共享锁(读锁)，保证线程安全
+        size_t shard = get_shard(key);
+        // 使用分片锁
+        std::shared_lock<std::shared_mutex> read_lock(shard_mutexes_[shard]);
         auto it = cache_map_.find(key); // 在哈希表中查找键
         if (it == cache_map_.end()) {
             return std::nullopt; // 如果未找到，返回空值
@@ -41,10 +53,10 @@ template <typename Key, typename Value> class SafeLRUCache {
         // 检查是否要更新链表
         if (it->second != cache_list_.begin()) {
             // 释放读锁
-            read_ock.unlock();
+            read_lock.unlock();
             // 加写锁
             std::lock_guard<std::shared_mutex> write_lock(
-                mutex_); // 加独占锁(写锁)，保证线程安全
+                shard_mutexes_[shard]); // 加独占锁(写锁)，保证线程安全
             // 将找到的缓存项移动到链表的最前面，表示最近使用
             cache_list_.splice(cache_list_.begin(), cache_list_, it->second);
         }
@@ -55,7 +67,9 @@ template <typename Key, typename Value> class SafeLRUCache {
     // @param key: 要插入或更新的键
     // @param value: 要插入或更新的值
     void put(const Key &key, const Value &value) {
-        std::lock_guard<std::shared_mutex> lock(mutex_); // 加锁，保证线程安全
+        size_t shard = get_shard(key);
+        std::lock_guard<std::shared_mutex> lock(
+            shard_mutexes_[shard]);     // 加锁，保证线程安全
         auto it = cache_map_.find(key); // 在哈希表中查找键
         if (it != cache_map_.end()) {
             // 如果键已存在，更新其值并将其移动到链表的最前面
@@ -84,7 +98,9 @@ template <typename Key, typename Value> class SafeLRUCache {
     // @param value: 要插入或更新的值
     // 使用移动语义
     void put(const Key &key, Value &&value) {
-        std::lock_guard<std::shared_mutex> lock(mutex_); // 加锁，保证线程安全
+        size_t shard = get_shard(key);
+        std::lock_guard<std::shared_mutex> lock(
+            shard_mutexes_[shard]);     // 加锁，保证线程安全
         auto it = cache_map_.find(key); // 在哈希表中查找键
         if (it != cache_map_.end()) {
             // 如果键已存在，更新其值并将其移动到链表的最前面
@@ -111,7 +127,9 @@ template <typename Key, typename Value> class SafeLRUCache {
     // @param key: 要移除的键
     // @return: 如果找到并移除成功，返回true，否则返回false
     bool remove(const Key &key) {
-        std::lock_guard<std::shared_mutex> lock(mutex_); // 加锁，保证线程安全
+        size_t shard = get_shard(key);
+        std::lock_guard<std::shared_mutex> lock(
+            shard_mutexes_[shard]);     // 加锁，保证线程安全
         auto it = cache_map_.find(key); // 在哈希表中查找键
         if (it == cache_map_.end()) {
             return false; // 如果未找到，返回false

@@ -1,6 +1,7 @@
 #ifndef __SKIPLIST_HPP__
 #define __SKIPLIST_HPP__
 #pragma once
+#include <atomic> // 用于统计信息
 #include <ctime>
 #include <iostream>
 #include <limits> // Required for numeric_limits
@@ -24,11 +25,13 @@ template <typename T> class SkipList {
     std::shared_ptr<Node> head;
     int level;
     double p;
-    std::mt19937 gen;                           // 随机数生成器
+    std::atomic<size_t> size_{0};
+    std::atomic<size_t> total_memory_{0};
     std::uniform_real_distribution<double> dis; // 均匀分布
     mutable std::shared_mutex mtx;
     // 用于线程安全
     int randomLevel() {
+        static thread_local std::mt19937 gen(std::random_device{}());
         int l = 1;
         while (dis(gen) < p && l < level) {
             l++;
@@ -38,13 +41,18 @@ template <typename T> class SkipList {
 
   public:
     SkipList(int maxLevel = 16, double probability = 0.5)
-        : level(maxLevel), p(probability), gen(std::random_device{}()),
-          dis(0.0, 1.0) {
+        : level(maxLevel), p(probability), dis(0.0, 1.0) {
         head = std::make_shared<Node>(std::numeric_limits<T>::min(),
                                       level); // 使用最小可能值作为头节点键值
     }
 
+    size_t size() const { return size_; }
+    size_t memory_usage() const { return total_memory_; }
+
     void insert(const T &key) {
+        if (!std::is_arithmetic<T>::value && !std::is_pod<T>::value) {
+            throw std::invalid_argument("Key type must be arithmetic or POD");
+        }
         std::lock_guard<std::shared_mutex> lock(mtx); // 线程安全
         std::vector<std::shared_ptr<Node>> update(level);
         auto current = head;
@@ -71,6 +79,9 @@ template <typename T> class SkipList {
             newNode->next[i] = update[i]->next[i];
             update[i]->next[i] = newNode;
         }
+
+        size_++;
+        total_memory_ += sizeof(Node) + l * sizeof(std::shared_ptr<Node>);
     }
 
     bool search(const T &key) const {                  // const correctness
@@ -109,6 +120,9 @@ template <typename T> class SkipList {
                 }
                 update[i]->next[i] = current->next[i];
             }
+            size_--;
+            total_memory_ -= sizeof(Node) + current->next.size() *
+                                                sizeof(std::shared_ptr<Node>);
             // 调整最大层数
             while (level > 1 && head->next[level - 1] == nullptr) {
                 level--;

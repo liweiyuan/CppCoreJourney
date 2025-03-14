@@ -2,9 +2,11 @@
 #define CONVERT_STRING_HPP
 
 #include <algorithm>
+#include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 class ConvertString {
   private:
@@ -13,16 +15,33 @@ class ConvertString {
   public:
     explicit ConvertString(const std::string &str) : str(str) {}
 
+    // 添加trim功能
+    void trim() {
+        str.erase(0, str.find_first_not_of(" \t\n\r\f\v"));
+        str.erase(str.find_last_not_of(" \t\n\r\f\v") + 1);
+    }
+
     // 转换为T类型
     template <typename T> std::optional<T> to() const {
-        std::istringstream iss(str); // 用字符串初始化输入流
-        T result;
-        iss >>
-            result; // 使用 >>
-                    // 进行类型转换,因为大部分类型都支持这个操作符(int,double,bool等)
-        // 检查转换是否成功，并且确保流已到达末尾（防止部分转换）
-        if (!iss.fail() && iss.eof()) {
-            return result;
+        if constexpr (std::is_arithmetic_v<T>) {
+            try {
+                std::istringstream iss(str);
+                T result;
+                iss >> result;
+
+                if (!iss.fail() && iss.eof()) {
+                    if constexpr (std::is_integral_v<T>) {
+                        // 检查整数范围
+                        if (result < std::numeric_limits<T>::min() ||
+                            result > std::numeric_limits<T>::max()) {
+                            return std::nullopt;
+                        }
+                    }
+                    return result;
+                }
+            } catch (...) {
+                return std::nullopt;
+            }
         }
         return std::nullopt;
     }
