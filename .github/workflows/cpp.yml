@@ -84,4 +84,4 @@ jobs:
 
       - name: Run tests CovertStringTests
         working-directory: build
-        run: ./tests/CovertStringTests
+        run: ./tests/ConvertStringTests
