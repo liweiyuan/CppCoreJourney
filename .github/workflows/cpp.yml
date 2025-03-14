@@ -44,40 +44,40 @@ jobs:
       # 步骤 6：运行单元测试
       - name: Run tests anyTests
         working-directory: build
-        run: ./test/anyTests
+        run: ./tests/anyTests
 
       - name: Run tests LRUTests
         working-directory: build
-        run: ./test/LRUTests
+        run: ./tests/LRUTests
 
       - name: Run tests SkipListTests
         working-directory: build
-        run: ./test/SkipListTests
+        run: ./tests/SkipListTests
 
       - name: Run tests callbackTests
         working-directory: build
-        run: ./test/callbackTests
+        run: ./tests/callbackTests
 
       - name: Run tests queueTests
         working-directory: build
-        run: ./test/queueTests
+        run: ./tests/queueTests
 
       - name: Run tests runTests
         working-directory: build
-        run: ./test/runTests
+        run: ./tests/runTests
 
       - name: Run tests tupleTests
         working-directory: build
-        run: ./test/tupleTests
+        run: ./tests/tupleTests
 
       - name: Run tests configTests
         working-directory: build
-        run: ./test/configTests
+        run: ./tests/configTests
 
       - name: Run tests optionalTests
         working-directory: build
-        run: ./test/optionalTests
+        run: ./tests/optionalTests
 
       - name: Run tests alloctorTests
         working-directory: build
-        run: ./test/alloctorTests
+        run: ./tests/alloctorTests

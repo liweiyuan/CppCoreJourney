@@ -10,4 +10,4 @@ add_library(server STATIC src/server.cpp)
 #add_library(callback SHARE src/callback.cpp)
 
 # 添加测试目录
-add_subdirectory(test)
+add_subdirectory(tests)
