@@ -31,6 +31,7 @@ TEST(ConvertStringTest, ConvertToBool) {
     // 测试真值
     EXPECT_EQ(ConvertString("true").to<bool>(), true);
     EXPECT_EQ(ConvertString("1").to<bool>(), true);
+    EXPECT_EQ(ConvertString("2").to<bool>(), true);
 
     // 测试假值
     EXPECT_EQ(ConvertString("false").to<bool>(), false);
