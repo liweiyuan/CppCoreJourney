@@ -85,3 +85,7 @@ jobs:
       - name: Run tests CovertStringTests
         working-directory: build
         run: ./tests/ConvertStringTests
+
+      - name: Run tests BindTests
+        working-directory: build
+        run: ./tests/BindTests
