@@ -38,6 +38,16 @@ TEST_F(TupleTest, TupleElement) {
                               double>::value));
 }
 
+TEST_F(TupleTest, test_tie) {
+    int a;
+    std::string b;
+    double c;
+    std::tie(a, b, c) = tuple;
+    EXPECT_EQ(a, 42);
+    EXPECT_EQ(b, "Hello");
+    EXPECT_DOUBLE_EQ(c, 3.14);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
