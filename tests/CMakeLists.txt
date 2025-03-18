@@ -56,6 +56,9 @@ target_link_libraries(ConvertStringTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(BindTests test_bind.cpp)
 target_link_libraries(BindTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(ConstexprTests test_constexpr.cpp)
+target_link_libraries(ConstexprTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)
