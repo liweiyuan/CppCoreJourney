@@ -93,6 +93,10 @@ TEST(ChronoConvertTest, InvalidArgument) {
         ChronoConvert::UsToMs(std::numeric_limits<double>::infinity()));
 }
 
+/*
+ *
+ * gtest 入口 
+ * */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

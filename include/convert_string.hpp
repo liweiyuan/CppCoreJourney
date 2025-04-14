@@ -47,7 +47,7 @@ class ConvertString {
     }
 
     // 特化 bool 类型处理
-    template <> std::optional<bool> to() const {
+    template < > std::optional<bool> to() const {
         // 创建小写副本用于布尔解析
         std::string lower_str;
         std::transform(str.begin(), str.end(), std::back_inserter(lower_str),
