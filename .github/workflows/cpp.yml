@@ -93,3 +93,7 @@ jobs:
       - name: Run tests ConstexprTests
         working-directory: build
         run: ./tests/ConstexprTests
+
+      - name: Run tests bitsetTests
+        working-directory: build
+        run: ./tests/bitsetTests
