@@ -62,6 +62,9 @@ target_link_libraries(ConstexprTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(bitsetTests test_bitset.cpp)
 target_link_libraries(bitsetTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(filesystemTests test_filesystem.cpp)
+target_link_libraries(filesystemTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)

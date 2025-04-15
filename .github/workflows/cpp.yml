@@ -97,3 +97,7 @@ jobs:
       - name: Run tests bitsetTests
         working-directory: build
         run: ./tests/bitsetTests
+
+      - name: Run tests filesystemTests
+        working-directory: build
+        run: ./tests/filesystemTests
