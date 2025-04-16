@@ -101,3 +101,7 @@ jobs:
       - name: Run tests filesystemTests
         working-directory: build
         run: ./tests/filesystemTests
+
+      - name: Run tests functionTests
+        working-directory: build
+        run: ./tests/functionTests
