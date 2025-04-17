@@ -43,16 +43,16 @@ void generate_log_file(const std::string &filename, int site_id, int start,
 std::vector<LogEntry> read_log_file(const std::string &filename) {
     std::ifstream in(filename);
     std::vector<LogEntry> logs;
-    std::string ts;
-    char site;
-    int value;
-
-    while (in >> std::ws && std::getline(in, ts, ' ')) {
-        std::string time_part;
-        in >> time_part >> site >> value;
-        logs.push_back({ts + " " + time_part, site, value});
+    std::string line;
+    while (std::getline(in, line)) {
+        std::istringstream iss(line);
+        std::string date, time;
+        char site_id;
+        int value;
+        if (iss >> date >> time >> site_id >> value) {
+            logs.push_back({date + " " + time, site_id, value});
+        }
     }
-
     return logs;
 }
 
@@ -77,14 +77,19 @@ TEST(MergeTest, MergeLogs) {
     auto logsA = read_log_file("siteA.log");
     auto logsB = read_log_file("siteB.log");
 
-    // Step 3: Merge logs using std::merge
+    // Step 3: Sort logs
+    std::sort(logsA.begin(), logsA.end());
+    std::sort(logsB.begin(), logsB.end());
+
+    // Step 4: Merge logs using std::merge
     std::vector<LogEntry> merged(logsA.size() + logsB.size());
     std::merge(logsA.begin(), logsA.end(), logsB.begin(), logsB.end(),
                merged.begin());
 
-    // Step 4: Write merged result
+    // Step 5: Write merged result
     write_merged_log("merged.log", merged);
-    // Step 5: Read merged log and check the order
+
+    // Step 6: Read merged log and check the order
     auto mergedLogs = read_log_file("merged.log");
     for (size_t i = 1; i < mergedLogs.size(); ++i) {
         // 打印
