@@ -105,3 +105,7 @@ jobs:
       - name: Run tests functionTests
         working-directory: build
         run: ./tests/functionTests
+
+      - name: Run tests mergeTests
+        working-directory: build
+        run: ./tests/MergeTests

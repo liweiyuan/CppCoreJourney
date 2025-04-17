@@ -68,6 +68,9 @@ target_link_libraries(filesystemTests PRIVATE ${GTEST_LIBRARIES})
 add_executable(functionTests test_function.cpp)
 target_link_libraries(functionTests PRIVATE ${GTEST_LIBRARIES})
 
+add_executable(MergeTests test_merge.cpp)
+target_link_libraries(MergeTests PRIVATE ${GTEST_LIBRARIES})
+
 # 添加测试
 add_test(NAME ServerTest COMMAND runTests)
 add_test(NAME CallbackTest COMMAND callbackTests)
